@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "identify-completed-form-app"
+version = "0.1.0"
+description = ""
+authors = ["Alexandr Rutkowski <kitanoyoru@protonmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.104.1"
+click = "^8.1.7"
+httpx = "^0.25.1"
+orjson = "^3.9.10"
+uvicorn = "^0.24.0.post1"
+gunicorn = "^21.2.0"
+pydantic = "^2.5.1"
+pymongo = "^4.6.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
