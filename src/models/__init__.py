@@ -1,9 +1,11 @@
 import re
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Optional
 
 from pydantic import create_model, field_validator
+
+from src.errors import ValidatorException
 
 
 def email_validator(value: Any):
@@ -13,7 +15,7 @@ def email_validator(value: Any):
     pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 
     if not re.match(pattern, value):
-        raise ValueError("Invalid email format")
+        raise ValidatorException("Invalid email format")
 
     return value
 
@@ -25,7 +27,9 @@ def phone_validator(value: Any) -> str:
     cleaned_number = re.sub(r"\D", "", value)
 
     if not re.match(r"^7\d{9}$", cleaned_number):
-        raise ValueError("Invalid phone format. Expected format: +7 xxx xxx xx xx")
+        raise ValidatorException(
+            "Invalid phone format. Expected format: +7 xxx xxx xx xx"
+        )
 
     return value
 
@@ -42,7 +46,7 @@ def date_validator(value) -> str:
 
         raise ValueError("Invalid date format")
     except ValueError:
-        raise ValueError("Invalid date format")
+        raise ValidatorException("Invalid date format")
 
     return value
 
@@ -58,21 +62,20 @@ def text_validator(value: Any) -> str:
 
 
 class FieldType(Enum):
-    EMAIL = "email"
-    PHONE = "phone"
-    DATE = "date"
-    TEXT = "text"
+    EMAIL = "EMAIL"
+    PHONE = "PHONE"
+    DATE = "DATE"
+    TEXT = "TEXT"
 
-    _validators: Dict["FieldType", Callable[[Any], str]] = {
-        EMAIL: email_validator,
-        PHONE: phone_validator,
-        DATE: date_validator,
-        TEXT: text_validator,
-    }
+_validators: Dict[FieldType, Callable[[Any], str]] = {
+    FieldType.EMAIL: email_validator,
+    FieldType.PHONE: phone_validator,
+    FieldType.DATE: date_validator,
+    FieldType.TEXT: text_validator,
+}
 
-    @classmethod
-    def get_validator_for_type(cls, field_type: str):
-        return cls._validators[field_type]
+def get_validator_for_type(field_type: str):
+    return _validators[FieldType(field_type)]
 
 
 def create_validators(form_template: Dict[str, str]):
@@ -80,7 +83,9 @@ def create_validators(form_template: Dict[str, str]):
 
     for field_name, field_type in form_template.items():
         validator_name = f"{field_name}_validator"
-        validator = field_validator(field_name, FieldType.get_validator_for(field_type))
+        validator = get_validator_for_type(FieldType(field_type))
+
+        validator = field_validator(field_name)(validator)
 
         validators[validator_name] = validator
 
@@ -91,7 +96,7 @@ def create_form_template_model(form_name: str, raw_data: Dict[str, Any]):
     validators = create_validators(raw_data)
     Model = create_model(
         form_name,
-        **{field_name: (Any, ...) for field_name in raw_data.keys()},
+        **{field_name: (Optional[Any], None) for field_name in raw_data.keys()},
         __validators__=validators,
     )
     return Model
