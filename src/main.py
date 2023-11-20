@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import FastAPI, Response
 from motor.motor_asyncio import AsyncIOMotorClient
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
@@ -29,7 +31,7 @@ def create_app() -> FastAPI:
     )
 
 
-def create_app_with_config(client: AsyncIOMotorClient) -> FastAPI:
+def create_app_with_config(client: AsyncIOMotorClient[Any]) -> FastAPI:
     app = FastAPI(
         title="Leadhit task",
         version="0.1.0",

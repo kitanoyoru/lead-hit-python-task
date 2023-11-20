@@ -2,62 +2,52 @@ import re
 from collections import OrderedDict
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional, Type
 
-from pydantic import create_model, field_validator
-
-from src.errors import ValidatorException
+from pydantic import BaseModel, create_model, field_validator
 
 
 def _email_validator(value: Any):
-    if not isinstance(value, str):
-        raise ValidatorException("Invalid email format")
+    assert isinstance(value, str), "value should be str"
 
     pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-
-    if not re.match(pattern, value):
-        raise ValidatorException("Invalid email format")
+    assert re.match(pattern, value), "invalid email formay"
 
     return value
 
 
 def _phone_validator(value: Any) -> str:
-    if not isinstance(value, str):
-        raise ValueError("Invalid phone format")
+    assert isinstance(value, str), "value should be str"
 
     cleaned_number = re.sub(r"\D", "", value)
-
-    if not re.match(r"^7\d{9}$", cleaned_number):
-        raise ValidatorException(
-            "Invalid phone format. Expected format: +7 xxx xxx xx xx"
-        )
+    assert re.match(
+        r"^7\d{9}$", cleaned_number
+    ), "invalid phone format (expected format: +7 xxx xxx xx xx)"
 
     return value
 
 
-def _date_validator(value) -> str:
-    if not isinstance(value, str):
-        raise ValidatorException("Invalid date format")
+def _date_validator(value: Any) -> str:
+    assert isinstance(value, str), "value should be str"
 
-    try:
-        date_formats = ["%d.%m.%Y", "%Y-%m-%d"]
-        for date_format in date_formats:
-            datetime.strptime(value, date_format)
-            return
+    date: Optional[datetime] = None
 
-        raise ValueError("Invalid date format")
-    except ValueError:
-        raise ValidatorException("Invalid date format")
+    date_formats = ["%d.%m.%Y", "%Y-%m-%d"]
+    for date_format in date_formats:
+        try:
+            date = datetime.strptime(value, date_format)
+        except ValueError:
+            continue
+
+    assert date is not None
 
     return value
 
 
 def _text_validator(value: Any) -> str:
-    if not isinstance(value, str):
-        raise ValidatorException("Invalid text format")
+    assert isinstance(value, str), "value should be str"
 
-    if len(value) > 50:
-        raise ValidatorException("Text exceeds the maximum length of 50 characters")
+    assert len(value) < 50, "text exceeds the maximum length of 50 characters"
 
     return value
 
@@ -79,16 +69,14 @@ validators: Dict[FieldType, Callable[[Any], str]] = OrderedDict(
 )
 
 
-def get_validator_for_type(field_type: str):
-    return validators[FieldType(field_type)]
-
-
-def create_validators(form_template: Dict[str, str]):
-    validators = {}
+def _create_validators(
+    form_template: Dict[str, str]
+) -> Dict[str, Callable[[Any], Any]]:
+    validators: Dict[str, Callable[[Any], Any]] = {}
 
     for field_name, field_type in form_template.items():
         validator_name = f"{field_name}_validator"
-        validator = get_validator_for_type(FieldType(field_type))
+        validator = validators[FieldType(field_type)]
 
         validator = field_validator(field_name)(validator)
 
@@ -97,11 +85,13 @@ def create_validators(form_template: Dict[str, str]):
     return validators
 
 
-def create_form_template_model(form_name: str, raw_data: Dict[str, Any]):
-    validators = create_validators(raw_data)
+def create_form_template_model(
+    form_name: str, raw_data: Dict[str, Any]
+) -> Type[BaseModel]:
+    validators = _create_validators(raw_data)
     Model = create_model(
         form_name,
-        **{field_name: (Optional[Any], None) for field_name in raw_data.keys()},
         __validators__=validators,
+        **{field_name: (Optional[Any], ...) for field_name in raw_data.keys()},
     )
     return Model
