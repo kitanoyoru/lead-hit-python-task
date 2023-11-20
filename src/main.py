@@ -31,7 +31,7 @@ def create_app() -> FastAPI:
 
 def create_app_with_config(client: AsyncIOMotorClient) -> FastAPI:
     app = FastAPI(
-        title="asdfadsf",
+        title="Leadhit task",
         version="0.1.0",
         description="",
         swagger_ui_parameters={

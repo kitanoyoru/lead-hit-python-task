@@ -32,7 +32,5 @@ def get_database_from_env(client: AsyncIOMotorClient) -> AsyncIOMotorDatabase:
 
 def create_client_from_env() -> AsyncIOMotorClient:
     MONGODB_DATABASE_URL = f"mongodb://{os.environ['DATABASE_URL']}"
-
     client = AsyncIOMotorClient(MONGODB_DATABASE_URL)
-
     return client

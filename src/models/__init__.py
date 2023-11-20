@@ -8,7 +8,7 @@ from pydantic import create_model, field_validator
 from src.errors import ValidatorException
 
 
-def email_validator(value: Any):
+def _email_validator(value: Any):
     if not isinstance(value, str):
         raise ValueError("Invalid email format")
 
@@ -20,7 +20,7 @@ def email_validator(value: Any):
     return value
 
 
-def phone_validator(value: Any) -> str:
+def _phone_validator(value: Any) -> str:
     if not isinstance(value, str):
         raise ValueError("Invalid phone format")
 
@@ -34,7 +34,7 @@ def phone_validator(value: Any) -> str:
     return value
 
 
-def date_validator(value) -> str:
+def _date_validator(value) -> str:
     if not isinstance(value, str):
         raise ValueError("Invalid date format")
 
@@ -51,7 +51,7 @@ def date_validator(value) -> str:
     return value
 
 
-def text_validator(value: Any) -> str:
+def _text_validator(value: Any) -> str:
     if not isinstance(value, str):
         raise ValueError("Invalid text format")
 
@@ -67,12 +67,14 @@ class FieldType(Enum):
     DATE = "DATE"
     TEXT = "TEXT"
 
+
 _validators: Dict[FieldType, Callable[[Any], str]] = {
-    FieldType.EMAIL: email_validator,
-    FieldType.PHONE: phone_validator,
-    FieldType.DATE: date_validator,
-    FieldType.TEXT: text_validator,
+    FieldType.EMAIL: _email_validator,
+    FieldType.PHONE: _phone_validator,
+    FieldType.DATE: _date_validator,
+    FieldType.TEXT: _text_validator,
 }
+
 
 def get_validator_for_type(field_type: str):
     return _validators[FieldType(field_type)]
