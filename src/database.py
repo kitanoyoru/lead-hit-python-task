@@ -2,6 +2,8 @@ from typing import Optional, Sequence
 
 from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
 
+from src.errors import NotFoundException
+
 
 class Database:
     _FORM_TEMPLATE_COLLECTION = "form_template_collection"
@@ -25,3 +27,5 @@ class Database:
             )
         ) is not None:
             return template
+
+        raise NotFoundException()

@@ -1,4 +1,5 @@
 import re
+from collections import OrderedDict
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Dict, Optional
@@ -10,7 +11,7 @@ from src.errors import ValidatorException
 
 def _email_validator(value: Any):
     if not isinstance(value, str):
-        raise ValueError("Invalid email format")
+        raise ValidatorException("Invalid email format")
 
     pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 
@@ -36,12 +37,12 @@ def _phone_validator(value: Any) -> str:
 
 def _date_validator(value) -> str:
     if not isinstance(value, str):
-        raise ValueError("Invalid date format")
+        raise ValidatorException("Invalid date format")
 
     try:
         date_formats = ["%d.%m.%Y", "%Y-%m-%d"]
         for date_format in date_formats:
-            datetime.datetime.strptime(value, date_format)
+            datetime.strptime(value, date_format)
             return
 
         raise ValueError("Invalid date format")
@@ -53,10 +54,10 @@ def _date_validator(value) -> str:
 
 def _text_validator(value: Any) -> str:
     if not isinstance(value, str):
-        raise ValueError("Invalid text format")
+        raise ValidatorException("Invalid text format")
 
     if len(value) > 50:
-        raise ValueError("Text exceeds the maximum length of 50 characters")
+        raise ValidatorException("Text exceeds the maximum length of 50 characters")
 
     return value
 
@@ -68,16 +69,18 @@ class FieldType(Enum):
     TEXT = "TEXT"
 
 
-_validators: Dict[FieldType, Callable[[Any], str]] = {
-    FieldType.EMAIL: _email_validator,
-    FieldType.PHONE: _phone_validator,
-    FieldType.DATE: _date_validator,
-    FieldType.TEXT: _text_validator,
-}
+validators: Dict[FieldType, Callable[[Any], str]] = OrderedDict(
+    {
+        FieldType.EMAIL: _email_validator,
+        FieldType.PHONE: _phone_validator,
+        FieldType.DATE: _date_validator,
+        FieldType.TEXT: _text_validator,
+    }
+)
 
 
 def get_validator_for_type(field_type: str):
-    return _validators[FieldType(field_type)]
+    return validators[FieldType(field_type)]
 
 
 def create_validators(form_template: Dict[str, str]):

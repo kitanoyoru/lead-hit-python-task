@@ -1,5 +1,4 @@
 import logging
-
 from typing import Any, AsyncGenerator, Callable
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -26,12 +25,12 @@ def create_router(
         params = dict(request.query_params)
 
         try:
-            return await service.search_form_template(**params)
+            return await service.search_form_template(params)
         except ValidatorException as exc:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
             )
-        except NotFoundException as exc:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        except NotFoundException:
+            return service.validate_fields(params)
 
     return router

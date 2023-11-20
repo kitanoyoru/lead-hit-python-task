@@ -18,4 +18,6 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_REPLICA_HOST=host.docker.internal
+      - MONGO_REPLICA_PORT=27018
 
