@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
-
 from starlette.responses import HTMLResponse
 
 

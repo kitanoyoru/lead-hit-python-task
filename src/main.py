@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from typing import Any
 
+import jinja2
 from fastapi import FastAPI, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import jinja2
 from motor.motor_asyncio import AsyncIOMotorClient
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request as StarletteRequest
 
 from src.config import create_client_from_env, get_database_from_env, get_directories
-from src.routers.v0 import create_router as create_api_router
 from src.routers.internal import create_router as create_internal_router
+from src.routers.v0 import create_router as create_api_router
 from src.service import Service
 
 
@@ -59,7 +59,6 @@ def create_app_with_config(client: AsyncIOMotorClient[Any]) -> FastAPI:
         StaticFiles(directory=directories.static),
         name="static",
     )
-
 
     async def get_service():
         db = get_database_from_env(client)
