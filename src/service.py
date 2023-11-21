@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorDatabase
 
@@ -10,7 +10,7 @@ from src.models import create_form_template_model, validators
 class Service:
     def __init__(
         self,
-        db: AsyncIOMotorDatabase[Any],
+        db: AsyncIOMotorDatabase,
         session: Optional[AsyncIOMotorClientSession] = None,
     ):
         self._db = Database(db, session)

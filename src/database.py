@@ -9,11 +9,11 @@ DatabaseOption = Union[AsyncIOMotorClientSession, None]
 
 
 class Database:
-    _FORM_TEMPLATE_COLLECTION: str = "form_template_collection"
+    _FORM_TEMPLATE_COLLECTION: str = "formTemplateCollection"
 
     def __init__(
         self,
-        db: AsyncIOMotorDatabase[Any],
+        db: AsyncIOMotorDatabase,
         session: Optional[AsyncIOMotorClientSession] = None,
     ):
         self._db = db

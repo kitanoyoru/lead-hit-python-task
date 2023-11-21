@@ -1,6 +1,6 @@
 import click
 
-from .commands.reset_db_command import reset_db
+from .commands.start_server_command import start_server
 
 
 @click.group()
@@ -8,4 +8,4 @@ def cli():
     pass
 
 
-cli.add_command(reset_db)
+cli.add_command(start_server)

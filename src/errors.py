@@ -1,10 +1,10 @@
-from pydantic import ValidationError
-
-ValidatorException = ValidationError
-
-
 class ServiceException(Exception):
     pass
+
+
+class ValidatorException(ServiceException):
+    def __init__(self, msg: str):
+        super().__init__(msg)
 
 
 class NotFoundException(ServiceException):

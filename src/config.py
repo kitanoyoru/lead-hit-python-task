@@ -1,7 +1,6 @@
 import os
 import pathlib
 from dataclasses import dataclass
-from typing import Any
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
@@ -27,7 +26,7 @@ def get_database_url() -> str:
     return f"mongod+srv://{os.environ['DATABASE_URL']}"
 
 
-def get_database_from_env(client: AsyncIOMotorClient[Any]) -> AsyncIOMotorDatabase[Any]:
+def get_database_from_env(client: AsyncIOMotorClient) -> AsyncIOMotorDatabase:
     db_name = os.getenv("DATABASE_NAME")
     if db_name is None:
         raise RuntimeError("Please set up DATABASE_NAME env variable")
@@ -35,7 +34,7 @@ def get_database_from_env(client: AsyncIOMotorClient[Any]) -> AsyncIOMotorDataba
     return client[db_name]
 
 
-def create_client_from_env() -> AsyncIOMotorClient[Any]:
+def create_client_from_env() -> AsyncIOMotorClient:
     MONGODB_DATABASE_URL = f"mongodb://{os.environ['DATABASE_URL']}"
     client = AsyncIOMotorClient(MONGODB_DATABASE_URL)
     return client

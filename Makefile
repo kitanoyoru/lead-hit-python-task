@@ -15,13 +15,9 @@ venv-clean:
 source:
 	source $(PWD)/.env.sh &&
 
-reset-db:
-	source $(PWD)/.env.sh && \
-	python3 -m src reset-db
-
 run-local:
 	source $(PWD)/.env.sh && \
-	uvicorn src.main:create_app --factory --reload --log-config=./config/log_conf.yaml
+	python -m src start-server
 
 clean:
 	find . -name "*.pyc" -delete
@@ -45,7 +41,3 @@ test:
 coverage:
 	coverage run --rcfile ./pyproject.toml -m pytest ./tests && \
 	coverage report --fail-under 95
-
-
-docker-prod:
-	DOCKER_BUILDKIT=0 docker build -t poetry-project .
